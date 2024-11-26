@@ -5,13 +5,15 @@ const { userService } = require('../services');
 
 function validateUser(req, res, next) {
     if (!req.body.email) {
-        ErrorResponse.message = "[email required]"
+        ErrorResponse.reset();
+        ErrorResponse.message = "[email required]";
         return res
             .status(StatusCodes.BAD_REQUEST)
             .json(ErrorResponse);
     }
     if (!req.body.password) {
-        ErrorResponse.message = "[password required]"
+        ErrorResponse.reset();
+        ErrorResponse.message = "[password required]";
         return res
             .status(StatusCodes.BAD_REQUEST)
             .json(ErrorResponse);
@@ -25,7 +27,9 @@ function validateUser(req, res, next) {
 async function checkAuth(req, res, next) {
 
     const authCookies = req.headers['cookie'];
+
     if (!authCookies) {
+        ErrorResponse.reset();
         ErrorResponse.message = "[cookie not present]";
         return res
             .status(StatusCodes.BAD_REQUEST)
@@ -34,6 +38,7 @@ async function checkAuth(req, res, next) {
     const cookiePattern = new RegExp('SessionID' + "=([^;]*)");
     const match = cookiePattern.exec(authCookies);
     if (!match) {
+        ErrorResponse.reset();
         ErrorResponse.message = "[jwt-token not present]";
         return res
             .status(StatusCodes.BAD_REQUEST)
@@ -53,7 +58,8 @@ async function checkAuth(req, res, next) {
         }
     }
     catch (error) {
-        ErrorResponse.message = error
+        ErrorResponse.reset();
+        ErrorResponse.error = error
         return res
             .status(StatusCodes.BAD_REQUEST)
             .json(ErrorResponse);
@@ -74,7 +80,7 @@ async function isAdmin(req, res, next) {
         }
     }
     catch (error) {
-     ErrorResponse.message = error
+     ErrorResponse.error = error
      return res
          .status(StatusCodes.UNAUTHORIZED)
          .json(ErrorResponse);

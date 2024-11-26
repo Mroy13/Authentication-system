@@ -73,11 +73,19 @@ async function isAuthenticated(token) {
         }
 
     } catch (error) {
-        //console.log(error);
         throw error;
     }
 }
 
+
+  function userSignout(res){
+    try {
+     res.clearCookie("SessionID",{ path: '/' });
+     //console.log("successfully logout");
+    } catch (error) {
+     throw error;
+    }
+}
 
 async function checkAdmin(id){
     try {
@@ -91,15 +99,18 @@ async function checkAdmin(id){
             throw error;
         }
         else{
-            console.log(error);
             throw new Apperror("request not resolved due to server side_checkAdminrepo probelem", StatusCodes.INTERNAL_SERVER_ERROR);
         }
     }
 }
 
+
+
+
 module.exports = {
     createUser,
     userSignin,
     isAuthenticated,
-    checkAdmin
+    checkAdmin,
+    userSignout
 }

@@ -8,12 +8,14 @@ async function createUser(req, res) {
                   email: req.body.email,
                   password:req.body.password
            });
+           SuccessResponse.reset();
            SuccessResponse.data = userInfo.userName;
            return res
                   .status(StatusCodes.CREATED)
                   .json(SuccessResponse);
     }
     catch (error) {
+           ErrorResponse.reset();
            ErrorResponse.error = error;
            return res
                   .status(error.statusCode)
@@ -29,12 +31,14 @@ async function userSignin(req, res) {
                      email: req.body.email,
                      password:req.body.password
               },res);
+              SuccessResponse.reset();
               SuccessResponse.data = response;
               return res
                      .status(StatusCodes.CREATED)
                      .json(SuccessResponse);
        }
        catch (error) {
+              ErrorResponse.reset();
               ErrorResponse.error = error;
               return res
                      .status(error.statusCode)
@@ -43,8 +47,29 @@ async function userSignin(req, res) {
    
    
    }
+
+
+     function userSignout(req,res){
+       try {
+           userService.userSignout(res);
+           SuccessResponse.reset();
+           SuccessResponse.message="logout successfully"
+           return res
+                  .status(StatusCodes.OK)
+                  .json(SuccessResponse);
+    }
+    catch (error) {
+           ErrorResponse.reset();
+           ErrorResponse.error = error;
+
+           return res
+                  .status(error.statusCode)
+                  .json(ErrorResponse);
+    }
+}
    
 module.exports={
     createUser,
-    userSignin
+    userSignin,
+    userSignout
 }
