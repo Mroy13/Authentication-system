@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes');
 const { SuccessResponse, ErrorResponse } = require('../utils/common');
 const { userService } = require('../services');
+const Apperror = require('../utils/error/App-error');
 
 
 function validateUser(req, res, next) {
@@ -48,9 +49,9 @@ async function checkAuth(req, res, next) {
     const token = match[1];
 
     try {
-        const res = await userService.isAuthenticated(token);
-        if (res) {
-            req.user = res;
+        const userId = await userService.isAuthenticated(token);
+        if (userId) {
+            req.userId = userId;
             next();
         }
         if (!res) {
@@ -67,24 +68,29 @@ async function checkAuth(req, res, next) {
 }
 
 
-//Role-Based Access Control (check for admin access)
+//Role-Based Access Control
 
-async function isAdmin(req, res, next) {
-    try {
-        const res = await userService.checkAdmin(req.user);
-        if (res) {
-            next();
+function setRole(role){
+    return (req, res, next) => {
+        req.requiredRole = role;
+        next();
+    };
+}
+
+async function hasRoleAccess(req,res,next){
+        try{
+           const hasAccess=await userService.checkAccess(req.userId,req.requiredRole);
+           if(hasAccess){
+              next();
+           }
         }
-        else {
-           throw error;
-        }
-    }
-    catch (error) {
-     ErrorResponse.error = error
-     return res
-         .status(StatusCodes.UNAUTHORIZED)
-         .json(ErrorResponse);
-    }
+        catch(error){
+                 ErrorResponse.reset();
+                 ErrorResponse.error = error
+                 return res
+                     .status(StatusCodes.UNAUTHORIZED)
+                     .json(ErrorResponse);
+                }
 }
 
 
@@ -92,5 +98,7 @@ async function isAdmin(req, res, next) {
 module.exports = {
     validateUser,
     checkAuth,
-    isAdmin
+    setRole,
+    hasRoleAccess
+    
 }

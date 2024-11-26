@@ -5,6 +5,8 @@ const error={
     error:{},
     reset() {
         this.error = null;
+        this.data=null;
+        this.message="something went wrong";
     }
 }
 

@@ -1,4 +1,4 @@
-const {StatusCodes}= require('http-status-codes');
+const { StatusCodes } = require('http-status-codes');
 const { userRepository } = require('../repositories');
 const Apperror = require('../utils/error/App-error');
 const { ServerConfig } = require('../config');
@@ -33,7 +33,7 @@ async function createUser(data) {
     }
 }
 
-async function userSignin(data,res) {
+async function userSignin(data, res) {
     try {
         const userData = await UserRepository.findUser(data.email);
         if (!userData) {
@@ -43,7 +43,7 @@ async function userSignin(data,res) {
         if (!passwordMatch) {
             throw new Apperror("[invalid password]", StatusCodes.UNAUTHORIZED);
         }
-        
+
         const jwtToken = Auth.createJwttoken({ id: userData.id, email: userData.email }, ServerConfig.SECRET_KEY);
 
         let options = {
@@ -51,10 +51,10 @@ async function userSignin(data,res) {
             httpOnly: true, // The cookie is only accessible by the web server
             secure: true,
             sameSite: 'None',
-          };
-      
-          res.cookie('SessionID', jwtToken, options);
-          return userData.userName;
+        };
+
+        res.cookie('SessionID', jwtToken, options);
+        return userData.userName;
 
     } catch (error) {
         throw error;
@@ -78,29 +78,33 @@ async function isAuthenticated(token) {
 }
 
 
-  function userSignout(res){
+function userSignout(res) {
     try {
-     res.clearCookie("SessionID",{ path: '/' });
-     //console.log("successfully logout");
+        res.clearCookie("SessionID", { path: '/' });
+        //console.log("successfully logout");
     } catch (error) {
-     throw error;
+        throw error;
     }
 }
 
-async function checkAdmin(id){
+
+async function checkAccess(id, role) {
     try {
-        const res=await UserRepository.checkAdmin(id);
-        if(!res){
-            throw new Apperror("ivalid authorization",StatusCodes.UNAUTHORIZED);
+        const isMatch = await UserRepository.checkRole(id, role);
+        if (!isMatch) {
+            throw new Apperror("ivalid authorization", StatusCodes.UNAUTHORIZED);
         }
-        return res;
-    } catch (error) {
-        if(error instanceof Apperror){
+        return isMatch;
+    }
+    catch (error) {
+
+        if (error instanceof Apperror) {
             throw error;
         }
-        else{
-            throw new Apperror("request not resolved due to server side_checkAdminrepo probelem", StatusCodes.INTERNAL_SERVER_ERROR);
+        else {
+            throw new Apperror("request not resolved due to server side probelem", StatusCodes.INTERNAL_SERVER_ERROR);
         }
+
     }
 }
 
@@ -111,6 +115,6 @@ module.exports = {
     createUser,
     userSignin,
     isAuthenticated,
-    checkAdmin,
+    checkAccess,
     userSignout
 }

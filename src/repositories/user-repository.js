@@ -28,14 +28,14 @@ class userRepository extends crudRepository {
         }
     }
 
-    async checkAdmin(id){
+    async checkRole(id,role){
         try {
             const user=await User.findByPk(id);
-            const role=await Role.findOne({where:{
-                name:'admin'
+            const roleDetails=await Role.findOne({where:{
+                name:role
             }});
 
-            const res=await user.hasRole(role);
+            const res=await user.hasRole(roleDetails);
             return res;
 
         } catch (error) {
