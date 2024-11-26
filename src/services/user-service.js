@@ -9,15 +9,16 @@ const UserRepository = new userRepository();
 
 
 async function createUser(data) {
-    // console.log(data);
     try {
         const user = await UserRepository.create(data);
+
+        //add default role 'user' when any user signup
         await UserRepository.addroleTouser(user);
         return user;
     }
+
     //client side errorHandling
     catch (error) {
-        //  console.log(error);
         if (error.name == 'SequelizeValidationError' || error.name == 'SequelizeUniqueConstraintError') {
             const explanation = [];
             error.errors.forEach(err => {
@@ -32,6 +33,7 @@ async function createUser(data) {
         }
     }
 }
+
 
 async function userSignin(data, res) {
     try {
@@ -57,9 +59,15 @@ async function userSignin(data, res) {
         return userData.userName;
 
     } catch (error) {
-        throw error;
+        if (error instanceof Apperror) {
+            throw error;
+        }
+        else{
+            throw new Apperror("request not resolved due to server side probelem", StatusCodes.INTERNAL_SERVER_ERROR);
+        }
     }
 }
+
 
 async function isAuthenticated(token) {
     try {
@@ -101,6 +109,48 @@ async function checkAccess(id, role) {
         if (error instanceof Apperror) {
             throw error;
         }
+
+        if (error.name == 'SequelizeDatabaseError') {
+            const explanation = [];
+            
+            explanation.push(error.message);
+          
+
+            throw new Apperror(explanation, StatusCodes.BAD_REQUEST);
+        }
+
+        else {
+            throw new Apperror("request not resolved due to server side probelem", StatusCodes.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+}
+
+async function addRoleTouser(id,role){
+    try {
+        const addResp = await UserRepository.addRole(id, role);
+        if(addResp===0){
+            throw new Apperror("user not found",StatusCodes.BAD_REQUEST);
+        }
+        if(!addResp){
+            throw new Apperror("This role has already been assigned to the user",StatusCodes.CONFLICT);
+        }
+       
+        return addResp;
+    }
+    catch (error) {
+
+        if (error instanceof Apperror) {
+            throw error;
+        }
+        if (error.name == 'SequelizeDatabaseError') {
+            const explanation = [];
+            
+            explanation.push(error.message);
+          
+
+            throw new Apperror(explanation, StatusCodes.BAD_REQUEST);
+        }
         else {
             throw new Apperror("request not resolved due to server side probelem", StatusCodes.INTERNAL_SERVER_ERROR);
         }
@@ -110,11 +160,11 @@ async function checkAccess(id, role) {
 
 
 
-
 module.exports = {
     createUser,
     userSignin,
     isAuthenticated,
     checkAccess,
-    userSignout
+    userSignout,
+    addRoleTouser
 }
