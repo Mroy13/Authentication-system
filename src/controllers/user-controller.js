@@ -28,7 +28,7 @@ async function userSignin(req, res) {
                      userName: req.body.userName,
                      email: req.body.email,
                      password:req.body.password
-              });
+              },res);
               SuccessResponse.data = response;
               return res
                      .status(StatusCodes.CREATED)

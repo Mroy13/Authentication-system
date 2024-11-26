@@ -33,24 +33,30 @@ async function createUser(data) {
     }
 }
 
-async function userSignin(data) {
+async function userSignin(data,res) {
     try {
         const userData = await UserRepository.findUser(data.email);
-        // console.log(userData);
         if (!userData) {
             throw new Apperror("[user not found]", StatusCodes.NOT_FOUND);
         }
-        const res = bcrypt.compareSync(data.password, userData.password);
-        if (!res) {
+        const passwordMatch = bcrypt.compareSync(data.password, userData.password);
+        if (!passwordMatch) {
             throw new Apperror("[invalid password]", StatusCodes.UNAUTHORIZED);
         }
-        //data.id=userData.id;
-        // const jwtToken= createJwttoken(data,ServerConfig.SECRET_KEY); 
+        
         const jwtToken = Auth.createJwttoken({ id: userData.id, email: userData.email }, ServerConfig.SECRET_KEY);
-        //  console.log(jwtToken);
-        return jwtToken;
+
+        let options = {
+            maxAge: 5 * 60 * 1000, // would expire in 5minutes
+            httpOnly: true, // The cookie is only accessible by the web server
+            secure: true,
+            sameSite: 'None',
+          };
+      
+          res.cookie('SessionID', jwtToken, options);
+          return userData.userName;
+
     } catch (error) {
-        // console.log(error);
         throw error;
     }
 }

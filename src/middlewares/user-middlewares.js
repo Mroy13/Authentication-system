@@ -20,14 +20,28 @@ function validateUser(req, res, next) {
     next();
 }
 
+
+
 async function checkAuth(req, res, next) {
-    const token = req.headers['jwt-token'];
-    if (!token) {
+
+    const authCookies = req.headers['cookie'];
+    if (!authCookies) {
+        ErrorResponse.message = "[cookie not present]";
+        return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json(ErrorResponse);
+    }
+    const cookiePattern = new RegExp('SessionID' + "=([^;]*)");
+    const match = cookiePattern.exec(authCookies);
+    if (!match) {
         ErrorResponse.message = "[jwt-token not present]";
         return res
             .status(StatusCodes.BAD_REQUEST)
             .json(ErrorResponse);
     }
+
+    const token = match[1];
+
     try {
         const res = await userService.isAuthenticated(token);
         if (res) {
@@ -46,6 +60,9 @@ async function checkAuth(req, res, next) {
     }
 }
 
+
+//Role-Based Access Control (check for admin access)
+
 async function isAdmin(req, res, next) {
     try {
         const res = await userService.checkAdmin(req.user);
@@ -63,6 +80,8 @@ async function isAdmin(req, res, next) {
          .json(ErrorResponse);
     }
 }
+
+
 
 module.exports = {
     validateUser,

@@ -23,9 +23,7 @@ class userRepository extends crudRepository {
                  name:'user'
             }});
              const res=await user.addRole(role);
-            // return res;
         } catch (error) {
-           // console.log(error);
             throw error;
         }
     }
