@@ -1,25 +1,28 @@
+
+---
+
 # Authentication System
 
 ## Overview
 
-This project is a robust authentication system built with **Node.js**, **Sequelize**, **PostgreSQL**, and **JWT Tokens**. It offers a secure and scalable way to manage user authentication and authorization. Key features include user registration, login, secure signout, and **role-based access control**. The system is designed to integrate seamlessly into web applications requiring robust authentication and fine-grained authorization mechanisms.
+This project is a robust authentication system built with **Node.js**, **Sequelize**, **PostgreSQL**, and **JWT Tokens**. It provides secure and scalable management of user authentication and authorization. Key features include user registration, login, secure sign-out, and **role-based access control**. The system is designed for easy integration into web applications that require strong authentication and fine-grained authorization mechanisms.
 
 ### Key Highlights
 
-1. **Authentication**: Securely handle user login and registration using hashed passwords.
-2. **Authorization**: Implement role-based access control to restrict access to specific resources.
-3. **Extendability**: Modular design for easy extension and integration with other systems.
-4. **Scalability**: Built to handle complex user management scenarios such as assigning and managing roles.
+1. **Authentication**: Handles secure user login and registration with hashed passwords.
+2. **Authorization**: Implements role-based access control to restrict access to specific resources.
+3. **Extendability**: Modular architecture for easy extension and integration with other systems.
+4. **Scalability**: Supports complex user management, including assigning and managing roles.
 
 ---
 
 ## Features
 
-- **Sign-up**: Create new user accounts and store user credentials securely using bcrypt hashing.
-- **Sign-in**: Authenticate users and issue JWT tokens for session management.
-- **Sign-out**: Securely log out users and invalidate tokens.
-- **Role-Based Access**: Protect endpoints using middleware to enforce role-based restrictions.
-- **Assign Roles**: Admin-level functionality to assign roles to users, enabling fine-grained access control.
+- **Sign-up**: Registers new user accounts and stores credentials securely using bcrypt hashing.
+- **Sign-in**: Authenticates users and generates JWT tokens for session management.
+- **Sign-out**: Logs out users and invalidates JWT tokens.
+- **Role-Based Access**: Protects endpoints using middleware to enforce role-based restrictions.
+- **Assign Roles**: Admin functionality to assign roles to users, enabling fine-grained access control.
 - **Authorization Endpoints**: Dedicated endpoints to test role-based access for resources.
 
 ---
@@ -29,7 +32,7 @@ This project is a robust authentication system built with **Node.js**, **Sequeli
 - **Node.js**: Backend JavaScript runtime.
 - **Sequelize**: ORM for database interactions.
 - **PostgreSQL**: Relational database system.
-- **JWT Tokens**: For secure authentication and session management.
+- **JWT Tokens**: Secure authentication and session management.
 
 ---
 
@@ -55,20 +58,26 @@ Follow these steps to set up and run the project locally:
     ```bash
     touch .env
     ```
-2. Add the following variables:
+2. Add the following variables to the `.env` file:
     ```plaintext
     PORT=<your_port>
     SALT_ROUNDS=8
     SECRET_KEY='your-secret-key'
     ```
 
-### 3. Database Configuration
+### 3. Database Configuration (Inside `src` Directory)
 
-1. Initialize the Sequelize configuration file:
+1. Navigate to the `src` directory:
+    ```bash
+    cd src
+    ```
+
+2. Initialize the Sequelize configuration file:
     ```bash
     npx sequelize init:config
     ```
-2. Update `config/config.json` with your PostgreSQL credentials:
+
+3. Update `src/config/config.json` with your PostgreSQL credentials:
     ```json
     {
       "development": {
@@ -81,16 +90,23 @@ Follow these steps to set up and run the project locally:
     }
     ```
 
-### 4. Create and Migrate the Database
+### 4. Create and Migrate the Database (Inside `src` Directory)
 
-1. Create the database:
+1. While in the `src` directory, create the database:
     ```bash
     npx sequelize-cli db:create
     ```
+    **Error Handling**: If you encounter an error like `database "your_database" already exists`, you can delete the existing database and try again, or simply proceed to the next step.
+
 2. Apply migrations:
     ```bash
     npx sequelize-cli db:migrate
     ```
+    **Error Handling**: If the migration fails due to existing tables, try running:
+    ```bash
+    npx sequelize-cli db:migrate:undo
+    ```
+    to roll back the previous migration and then re-run `db:migrate`.
 
 ### 5. Start the Server
 
@@ -102,6 +118,23 @@ npm start
 Access the server at `http://localhost:<PORT>`.
 
 ---
+
+
+
+---
+
+## Docker Setup
+
+This project uses Docker for containerization to ensure a consistent development and production environment. To get started with Docker, follow these steps:
+
+1. Visit the [Containerised Authentication System repository](https://github.com/Mroy13/Containerised-Authentication-system).
+2. Follow the detailed instructions in the repository's README to build and start the Docker containers.
+
+This will guide you through setting up the application using Docker for a smooth experience.
+
+---
+
+
 
 ## Endpoints
 
@@ -129,7 +162,7 @@ Access the server at `http://localhost:<PORT>`.
 
 1. **User**: Stores user information such as username and password.
 2. **Role**: Defines roles (`admin`, `user`, etc.).
-3. **User_Role**: Intermediate table for a many-to-many relationship between `User` and `Role`.
+3. **User_Role**: Intermediate table to establish a many-to-many relationship between `User` and `Role`.
 
 ### Middleware Functions
 
@@ -152,6 +185,6 @@ Access the server at `http://localhost:<PORT>`.
 
 ## Postman Documentation
 
-Test all endpoints via Postman using this [Postman Collection Documentation](https://documenter.getpostman.com/view/28392756/2sAXxJjbG8). 
+Test all endpoints via Postman using this [Postman Collection Documentation](https://documenter.getpostman.com/view/28392756/2sAXxJjbG8).
 
 ---
